@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { api } from '../api.js';
 import { MODES, recognizer, speak } from '../modes.js';
 import Feedback from '../components/Feedback.jsx';
+import Puzzle from '../components/Puzzle.jsx';
 
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
@@ -179,7 +180,7 @@ export default function Practice({ intent, onReviewChange }) {
 
               <div className="stack tight">
                 <h2>{exercise.instruction}</h2>
-                {exercise.mode === 'first-letter' && <p className="puzzle">{exercise.prompt}</p>}
+                {exercise.mode === 'first-letter' && <Puzzle letters={exercise.letters || exercise.prompt.split(' ')} hints={exercise.hints} />}
                 {exercise.mode === 'reconstruction' && (
                   <div className="chip-row">
                     {exercise.tokens.map((token, index) => (

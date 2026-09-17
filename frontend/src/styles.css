@@ -535,6 +535,66 @@ select {
   padding: 20px;
 }
 
+.puzzle.letters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  padding: 16px 10px;
+}
+
+.letter {
+  font: inherit;
+  font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+  min-width: 46px;
+  min-height: 54px;
+  padding: 2px 6px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.14s ease, color 0.14s ease, border-color 0.14s ease, transform 0.14s ease;
+}
+
+.letter:hover:not(:disabled),
+.letter.on {
+  background: var(--surface);
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.letter:disabled { cursor: default; }
+
+.hint-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-height: 50px;
+  padding: 10px 14px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  border: 1px dashed var(--border-strong);
+}
+
+.hint-letter {
+  font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--accent);
+}
+
+.hint-word {
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
 .puzzle.quiet {
   background: var(--surface-2);
   font-weight: 550;
@@ -758,6 +818,8 @@ select {
   .hero { padding: 20px; border-radius: var(--r); }
   .card { padding: 17px; }
   .puzzle { padding: 20px 14px; letter-spacing: 0.16em; }
+  .puzzle.letters { padding: 12px 6px; gap: 2px; }
+  .letter { min-width: 40px; min-height: 48px; }
 
   .bottom-nav {
     position: fixed;

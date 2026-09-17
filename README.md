@@ -36,6 +36,11 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 | Listening Challenge | Write down the sentence the browser reads out |
 | Speaking Challenge | Say the sentence out loud, speech recognition checks it |
 
+In the First Letter Challenge every letter is a button: point at it with the mouse or tap it
+on a phone and a strip below the puzzle shows common words that start with that letter, taken
+from the corpus and ranked with the words of the current category first. It is a hint, not the
+solution — the wanted word is only in the list when it is a frequent one.
+
 343 sentences in 18 categories, from A1 to C1, with a clear focus on IT: Docker, Linux,
 networking, servers, monitoring, security, programming and customer support. You can add your
 own sentences in the library; they are mixed into every mode.
@@ -87,7 +92,7 @@ backend/src
 frontend/src
   App.jsx          shell, navigation, theme
   pages/           Auth, Dashboard, Practice, WeakWords, Progress, Library, Settings
-  components/      Feedback, Ring
+  components/      Feedback, Puzzle, Ring
 ```
 
 ## API

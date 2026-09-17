@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { addDays, db, today } from '../db.js';
 import { requireAuth } from '../auth.js';
 import { analyze, blankIndex, contentWords, firstLetters, isContentWord, normalize, words } from '../analyzer.js';
+import { letterHints } from '../hints.js';
 
 export const MODES = ['first-letter', 'reconstruction', 'missing-word', 'grammar', 'listening', 'speaking'];
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
@@ -84,7 +85,10 @@ function buildPrompt(exercise, mode, extra = {}) {
     custom: Boolean(exercise.owner_id),
     ...extra
   };
-  if (mode === 'first-letter') return { ...base, prompt: firstLetters(exercise.text), instruction: 'Write the full sentence behind these first letters.' };
+  if (mode === 'first-letter') {
+    const letters = firstLetters(exercise.text).split(' ');
+    return { ...base, prompt: letters.join(' '), letters, hints: letterHints(letters, exercise.category), instruction: 'Write the full sentence behind these first letters.' };
+  }
   if (mode === 'reconstruction') return { ...base, tokens: shuffle(words(exercise.text).map((w) => w.replace(/[.,!?]$/, ''))), instruction: 'Put the words into the correct order.' };
   if (mode === 'missing-word') {
     const list = words(exercise.text);
