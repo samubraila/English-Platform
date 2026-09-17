@@ -23,20 +23,49 @@ async function request(path, options = {}) {
   return data;
 }
 
+const cache = new Map();
+
+function cached(key, ttl, load) {
+  const entry = cache.get(key);
+  if (entry && Date.now() - entry.at < ttl) return entry.value;
+  const value = load().catch((error) => {
+    cache.delete(key);
+    throw error;
+  });
+  cache.set(key, { at: Date.now(), value });
+  return value;
+}
+
 export const api = {
   me: () => request('/auth/me'),
   login: (email, password) => request('/auth/login', { method: 'POST', body: { email, password } }),
   register: (email, password) => request('/auth/register', { method: 'POST', body: { email, password } }),
-  logout: () => request('/auth/logout', { method: 'POST' }),
-  categories: () => request('/exercises/categories'),
-  next: (params) => request('/exercises/next?' + new URLSearchParams(Object.entries(params).filter(([, v]) => v)).toString()),
-  answer: (id, body) => request('/exercises/' + id + '/answer', { method: 'POST', body }),
-  progress: () => request('/progress'),
+  logout: () => {
+    cache.clear();
+    return request('/auth/logout', { method: 'POST' });
+  },
+  catalogue: () => cached('catalogue', 5 * 60 * 1000, () => request('/exercises/categories')),
+  next: (params) => request('/exercises/next?' + new URLSearchParams(Object.entries(params).filter(([, value]) => value)).toString()),
+  answer: (id, body) => {
+    cache.delete('progress');
+    cache.delete('catalogue');
+    return request('/exercises/' + id + '/answer', { method: 'POST', body });
+  },
+  progress: () => cached('progress', 30 * 1000, () => request('/progress')),
   settings: () => request('/settings'),
-  saveSettings: (body) => request('/settings', { method: 'PUT', body }),
+  saveSettings: (body) => {
+    cache.delete('progress');
+    return request('/settings', { method: 'PUT', body });
+  },
   myExercises: () => request('/exercises/mine'),
-  createExercise: (body) => request('/exercises', { method: 'POST', body }),
-  deleteExercise: (id) => request('/exercises/' + id, { method: 'DELETE' }),
+  createExercise: (body) => {
+    cache.delete('catalogue');
+    return request('/exercises', { method: 'POST', body });
+  },
+  deleteExercise: (id) => {
+    cache.delete('catalogue');
+    return request('/exercises/' + id, { method: 'DELETE' });
+  },
   exportUrl: base + '/export',
   statistics: () => request('/statistics'),
   weakWords: () => request('/weak-words'),

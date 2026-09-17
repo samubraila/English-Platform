@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api.js';
-import { MODES, mistakeLabel, plural } from '../modes.js';
+import { mistakeLabel, plural, withMeta } from '../modes.js';
 import Ring from '../components/Ring.jsx';
 
 const minutes = (seconds) => Math.round((seconds || 0) / 60);
@@ -21,8 +21,8 @@ export default function Dashboard({ onStart }) {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    Promise.all([api.progress(), api.mistakes(), api.categories()])
-      .then(([progress, mistakes, categories]) => setData({ progress, mistakes: mistakes.mistakes, categories: categories.categories }))
+    Promise.all([api.progress(), api.mistakes(), api.catalogue()])
+      .then(([progress, mistakes, catalogue]) => setData({ progress, mistakes: mistakes.mistakes, categories: catalogue.categories, modes: withMeta(catalogue.modes) }))
       .catch((err) => setError(err.message));
   }, []);
 
@@ -44,7 +44,7 @@ export default function Dashboard({ onStart }) {
     );
   }
 
-  const { progress, mistakes, categories } = data;
+  const { progress, mistakes, categories, modes } = data;
   const goalPercent = Math.min(100, Math.round((progress.today.exercises / progress.today.goal) * 100));
   const started = progress.totals.answers > 0;
   const recommended = [...categories].sort((a, b) => a.done / (a.exercises || 1) - b.done / (b.exercises || 1)).slice(0, 6);
@@ -92,10 +92,10 @@ export default function Dashboard({ onStart }) {
       <section className="stack">
         <div className="spread">
           <h2>Training modes</h2>
-          <span className="muted">Six ways to practise</span>
+          <span className="muted">{modes.length} ways to practise</span>
         </div>
         <div className="grid wide">
-          {MODES.map((mode) => (
+          {modes.map((mode) => (
             <button key={mode.id} type="button" className="tile" onClick={() => onStart({ mode: mode.id })}>
               <span className="tile-icon" aria-hidden="true">{mode.icon}</span>
               <h3>{mode.label}</h3>

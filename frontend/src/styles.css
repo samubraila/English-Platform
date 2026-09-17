@@ -653,6 +653,29 @@ select {
 .token.extra > span:first-child { text-decoration: line-through; }
 .token.order { background: var(--warn-soft); color: var(--warn); }
 
+.options {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.option {
+  min-height: 56px;
+  padding: 10px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 1.02rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.14s ease, border-color 0.14s ease, transform 0.14s ease;
+}
+
+.option:hover:not(:disabled) { border-color: var(--accent); transform: translateY(-2px); }
+.option.picked { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.option:disabled { cursor: default; opacity: 0.75; }
+
 .mistake-list { display: flex; flex-direction: column; gap: 9px; margin: 0; padding: 0; list-style: none; }
 
 .mistake {

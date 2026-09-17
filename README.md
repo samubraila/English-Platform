@@ -31,10 +31,17 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 | --- | --- |
 | First Letter Challenge | Rebuild a sentence from `T D C A R A T S R` |
 | Sentence Reconstruction | Put shuffled words into the correct order |
-| Missing Word | Fill a gap with the correct word |
+| Missing Word | Fill a gap with the correct function word |
+| Cloze | Complete the sentence with the missing key word, a different one every time |
+| Multiple Choice | Pick the right form out of four, distractors built from word rules |
+| Spelling | Listen to a single word and write it correctly |
 | Grammar Challenge | Find and correct the mistake in a sentence |
 | Listening Challenge | Write down the sentence the browser reads out |
 | Speaking Challenge | Say the sentence out loud, speech recognition checks it |
+
+All nine types are generated from the same sentence at request time: 343 sentences become more
+than 3.000 exercises without storing a single generated row. A new type is one entry in
+`backend/src/generator.js`.
 
 In the First Letter Challenge every letter is a button: point at it with the mouse or tap it
 on a phone and a strip below the puzzle shows common words that start with that letter, taken
@@ -84,6 +91,9 @@ considered learned and leaves the queue.
 backend/src
   server.js        express app, security middleware, routes
   analyzer.js      sentence alignment, mistake classification, explanations
+  generator.js     card engine: one registry entry per exercise type
+  forms.js         English word forms and multiple choice distractors
+  constants.js     levels and limits shared by the routes
   db.js            sqlite connection, schema bootstrap, migrations
   seed.js          categories, idempotent import of the sentence data
   data/            the sentence corpus, split by topic
@@ -128,6 +138,15 @@ frontend/src
 
 Data lives in the `wordtrace-data` volume. `docker compose down -v` deletes all accounts and
 progress.
+
+## Tests
+
+```bash
+cd backend && npm test
+```
+
+41 tests on the node test runner covering analyzer, word forms and card engine. No framework,
+no external service; the generator tests use a throwaway database in the temp directory.
 
 ## Development
 

@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api.js';
 
-const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
-
 export default function Library({ onStart }) {
   const [exercises, setExercises] = useState(null);
-  const [categories, setCategories] = useState([]);
+  const [catalogue, setCatalogue] = useState({ categories: [], levels: [] });
   const [text, setText] = useState('');
   const [category, setCategory] = useState('it');
   const [level, setLevel] = useState('B1');
@@ -14,10 +12,10 @@ export default function Library({ onStart }) {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    Promise.all([api.myExercises(), api.categories()])
+    Promise.all([api.myExercises(), api.catalogue()])
       .then(([mine, data]) => {
         setExercises(mine.exercises);
-        setCategories(data.categories);
+        setCatalogue(data);
       })
       .catch((err) => setError(err.message));
   }, []);
@@ -29,7 +27,7 @@ export default function Library({ onStart }) {
     setSaved('');
     try {
       const created = await api.createExercise({ text, category, level });
-      setExercises([{ ...created, categoryName: categories.find((c) => c.slug === category)?.name || category }, ...exercises]);
+      setExercises([{ ...created, categoryName: catalogue.categories.find((item) => item.slug === category)?.name || category }, ...exercises]);
       setText('');
       setSaved('Sentence added. It will appear in your exercises.');
     } catch (err) {
@@ -78,12 +76,12 @@ export default function Library({ onStart }) {
           </div>
           <div className="row-wrap">
             <select aria-label="Category" value={category} onChange={(e) => setCategory(e.target.value)} style={{ maxWidth: '230px' }}>
-              {categories.map((item) => (
+              {catalogue.categories.map((item) => (
                 <option key={item.slug} value={item.slug}>{item.icon} {item.name}</option>
               ))}
             </select>
             <select aria-label="Level" value={level} onChange={(e) => setLevel(e.target.value)} style={{ maxWidth: '130px' }}>
-              {LEVELS.map((item) => (
+              {catalogue.levels.map((item) => (
                 <option key={item} value={item}>{item}</option>
               ))}
             </select>

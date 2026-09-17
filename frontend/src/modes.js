@@ -1,15 +1,22 @@
-export const MODES = [
-  { id: 'first-letter', label: 'First Letter Challenge', short: 'First letters', icon: '🔤', description: 'Rebuild the sentence from its first letters.' },
-  { id: 'reconstruction', label: 'Sentence Reconstruction', short: 'Reconstruct', icon: '🧩', description: 'Put shuffled words into the right order.' },
-  { id: 'missing-word', label: 'Missing Word', short: 'Missing word', icon: '🕳', description: 'Fill the gap with the correct word.' },
-  { id: 'grammar', label: 'Grammar Challenge', short: 'Grammar', icon: '🛠', description: 'Find and fix the mistake in a sentence.' },
-  { id: 'listening', label: 'Listening Challenge', short: 'Listening', icon: '🎧', description: 'Write down the sentence you hear.' },
-  { id: 'speaking', label: 'Speaking Challenge', short: 'Speaking', icon: '🎙', description: 'Say the sentence out loud and let the browser check it.' }
-];
+const META = {
+  'first-letter': { short: 'First letters', icon: '🔤', description: 'Rebuild the sentence from its first letters.' },
+  reconstruction: { short: 'Reconstruct', icon: '🧩', description: 'Put shuffled words into the right order.' },
+  cloze: { short: 'Cloze', icon: '🧠', description: 'Complete the sentence with the missing key word.' },
+  'missing-word': { short: 'Missing word', icon: '🕳', description: 'Fill the gap with the correct function word.' },
+  'multiple-choice': { short: 'Choice', icon: '🔘', description: 'Pick the form that fits the sentence.' },
+  spelling: { short: 'Spelling', icon: '🔡', description: 'Listen to a word and write it correctly.' },
+  grammar: { short: 'Grammar', icon: '🛠', description: 'Find and fix the mistake in a sentence.' },
+  listening: { short: 'Listening', icon: '🎧', description: 'Write down the sentence you hear.' },
+  speaking: { short: 'Speaking', icon: '🎙', description: 'Say the sentence out loud and let the browser check it.' }
+};
 
-export const plural = (count, one, many) => count + ' ' + (count === 1 ? one : many);
+const FALLBACK = Object.keys(META).map((id) => ({ id, label: id, ui: 'text' }));
 
-export const modeLabel = (id) => MODES.find((mode) => mode.id === id)?.label || id;
+export const withMeta = (modes) =>
+  (modes?.length ? modes : FALLBACK).map((mode) => ({ ...META[mode.id], label: mode.label, ...mode }));
+
+export const modeLabel = (id) => META[id]?.short || id;
+export const modeIcon = (id) => META[id]?.icon || '•';
 
 const MISTAKE_LABELS = {
   missing_word: 'Missing word',
@@ -29,6 +36,7 @@ const MISTAKE_LABELS = {
 };
 
 export const mistakeLabel = (type) => MISTAKE_LABELS[type] || type;
+export const plural = (count, one, many) => count + ' ' + (count === 1 ? one : many);
 
 export const speak = (text) => {
   if (!('speechSynthesis' in window)) return false;

@@ -1,11 +1,10 @@
 import { Router } from 'express';
 import { db, today } from '../db.js';
 import { requireAuth } from '../auth.js';
+import { DAILY_GOAL_RANGE, LEVELS } from '../constants.js';
 
 const router = Router();
 router.use(requireAuth);
-
-const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
 function streakOf(userId) {
   const days = db.prepare('SELECT day FROM progress WHERE user_id = ? AND exercises > 0 ORDER BY day DESC LIMIT 400').all(userId).map((row) => row.day);
@@ -25,6 +24,7 @@ function streakOf(userId) {
 router.get('/progress', (req, res) => {
   const userId = req.user.id;
   const user = db.prepare('SELECT daily_goal, level FROM users WHERE id = ?').get(userId);
+  if (!user) return res.status(401).json({ error: 'Your session is no longer valid. Please sign in again.' });
   const day = db.prepare('SELECT exercises, correct, seconds FROM progress WHERE user_id = ? AND day = ?').get(userId, today()) || { exercises: 0, correct: 0, seconds: 0 };
   const totals = db.prepare('SELECT COUNT(*) AS answers, SUM(correct) AS correct, SUM(seconds) AS seconds FROM answers WHERE user_id = ?').get(userId);
   const recent = db.prepare('SELECT ROUND(AVG(score)) AS score FROM answers WHERE user_id = ? AND id > (SELECT COALESCE(MAX(id), 0) - 20 FROM answers WHERE user_id = ?)').get(userId, userId);
@@ -90,7 +90,8 @@ router.get('/settings', (req, res) => {
 router.put('/settings', (req, res) => {
   const goal = Number.parseInt(req.body?.daily_goal, 10);
   const level = req.body?.level === null || req.body?.level === '' ? null : req.body?.level;
-  if (!Number.isInteger(goal) || goal < 5 || goal > 200) return res.status(400).json({ error: 'The daily goal must be between 5 and 200.' });
+  const [min, max] = DAILY_GOAL_RANGE;
+  if (!Number.isInteger(goal) || goal < min || goal > max) return res.status(400).json({ error: 'The daily goal must be between ' + min + ' and ' + max + '.' });
   if (level !== null && !LEVELS.includes(level)) return res.status(400).json({ error: 'Unknown level.' });
 
   db.prepare('UPDATE users SET daily_goal = ?, level = ? WHERE id = ?').run(goal, level, req.user.id);

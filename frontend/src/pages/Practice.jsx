@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { api } from '../api.js';
-import { MODES, recognizer, speak } from '../modes.js';
+import { recognizer, speak, withMeta } from '../modes.js';
 import Feedback from '../components/Feedback.jsx';
 import Puzzle from '../components/Puzzle.jsx';
-
-const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
 export default function Practice({ intent, onReviewChange }) {
   const [mode, setMode] = useState(intent?.mode || 'first-letter');
@@ -12,7 +10,7 @@ export default function Practice({ intent, onReviewChange }) {
   const [level, setLevel] = useState('');
   const [queue, setQueue] = useState(intent?.queue || '');
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [categories, setCategories] = useState([]);
+  const [catalogue, setCatalogue] = useState({ categories: [], levels: [], modes: [] });
   const [exercise, setExercise] = useState(null);
   const [input, setInput] = useState('');
   const [result, setResult] = useState(null);
@@ -24,7 +22,7 @@ export default function Practice({ intent, onReviewChange }) {
   const answerField = useRef(null);
 
   useEffect(() => {
-    api.categories().then((data) => setCategories(data.categories)).catch(() => setCategories([]));
+    api.catalogue().then(setCatalogue).catch(() => {});
   }, []);
 
   const load = useCallback(
@@ -39,7 +37,7 @@ export default function Practice({ intent, onReviewChange }) {
         setStatus('ready');
         startedAt.current = Date.now();
         onReviewChange?.(data.dueReviews ?? 0);
-        if (data.mode === 'listening' && data.speak) speak(data.speak);
+        if ((data.mode === 'listening' || data.mode === 'spelling') && data.speak) speak(data.speak);
         window.requestAnimationFrame(() => answerField.current?.focus());
       } catch (err) {
         setExercise(null);
@@ -54,13 +52,12 @@ export default function Practice({ intent, onReviewChange }) {
     load();
   }, [load]);
 
-  const check = async (event) => {
-    event?.preventDefault();
-    if (!exercise || !input.trim() || status === 'checking') return;
+  const submit = async (answer) => {
+    if (!exercise || !answer.trim() || status === 'checking' || status === 'done') return;
     setStatus('checking');
     try {
       const seconds = Math.round((Date.now() - startedAt.current) / 1000);
-      const data = await api.answer(exercise.id, { mode: exercise.mode, input, seconds });
+      const data = await api.answer(exercise.id, { mode: exercise.mode, input: answer, gap: exercise.gap, seconds });
       setResult(data);
       setStatus('done');
       setSession((prev) => ({ answered: prev.answered + 1, correct: prev.correct + (data.correct ? 1 : 0), score: prev.score + data.score }));
@@ -68,6 +65,16 @@ export default function Practice({ intent, onReviewChange }) {
       setError(err.message);
       setStatus('ready');
     }
+  };
+
+  const check = (event) => {
+    event?.preventDefault();
+    submit(input);
+  };
+
+  const choose = (option) => {
+    setInput(option);
+    submit(option);
   };
 
   const listen = () => {
@@ -91,9 +98,11 @@ export default function Practice({ intent, onReviewChange }) {
     }
   };
 
-  const activeMode = MODES.find((item) => item.id === mode);
+  const modes = withMeta(catalogue.modes);
+  const activeMode = modes.find((item) => item.id === mode);
   const sessionScore = session.answered ? Math.round(session.score / session.answered) : 0;
   const filtersActive = Boolean(category || level || queue);
+  const isChoice = exercise?.ui === 'choice';
 
   return (
     <div className="stack">
@@ -108,7 +117,7 @@ export default function Practice({ intent, onReviewChange }) {
       </header>
 
       <div className="chip-row" role="group" aria-label="Training mode">
-        {MODES.map((item) => (
+        {modes.map((item) => (
           <button key={item.id} type="button" className="chip" aria-pressed={mode === item.id} onClick={() => setMode(item.id)}>
             <span aria-hidden="true">{item.icon}</span> {item.short}
           </button>
@@ -119,13 +128,13 @@ export default function Practice({ intent, onReviewChange }) {
         <div className="card flat row-wrap fade-in">
           <select aria-label="Category" value={category} onChange={(e) => setCategory(e.target.value)} style={{ maxWidth: '230px' }}>
             <option value="">All categories</option>
-            {categories.map((item) => (
+            {catalogue.categories.map((item) => (
               <option key={item.slug} value={item.slug}>{item.icon} {item.name}</option>
             ))}
           </select>
           <select aria-label="Level" value={level} onChange={(e) => setLevel(e.target.value)} style={{ maxWidth: '150px' }}>
             <option value="">All levels</option>
-            {LEVELS.map((item) => (
+            {catalogue.levels.map((item) => (
               <option key={item} value={item}>{item}</option>
             ))}
           </select>
@@ -180,19 +189,26 @@ export default function Practice({ intent, onReviewChange }) {
 
               <div className="stack tight">
                 <h2>{exercise.instruction}</h2>
-                {exercise.mode === 'first-letter' && <Puzzle letters={exercise.letters || exercise.prompt.split(' ')} hints={exercise.hints} />}
-                {exercise.mode === 'reconstruction' && (
+
+                {exercise.letters && <Puzzle letters={exercise.letters} hints={exercise.hints} />}
+
+                {exercise.tokens && (
                   <div className="chip-row">
                     {exercise.tokens.map((token, index) => (
                       <span className="chip word" key={index}>{token}</span>
                     ))}
                   </div>
                 )}
-                {(exercise.mode === 'missing-word' || exercise.mode === 'grammar') && <p className="puzzle sentence">{exercise.prompt}</p>}
-                {exercise.mode === 'speaking' && <p className="puzzle sentence quiet">{exercise.prompt}</p>}
-                {(exercise.mode === 'listening' || exercise.mode === 'speaking') && (
+
+                {exercise.prompt && !exercise.letters && (
+                  <p className={'puzzle sentence' + (exercise.mode === 'speaking' ? ' quiet' : '')}>{exercise.prompt}</p>
+                )}
+
+                {exercise.speak && (
                   <div className="row-wrap">
-                    <button className="btn quiet" type="button" onClick={() => speak(exercise.speak)}>▶ Play sentence</button>
+                    <button className="btn quiet" type="button" onClick={() => speak(exercise.speak)}>
+                      ▶ Play {exercise.mode === 'spelling' ? 'word' : 'sentence'}
+                    </button>
                     {exercise.mode === 'speaking' && (
                       <button className="btn quiet" type="button" onClick={listen} disabled={listening}>
                         {listening ? '● Listening...' : '🎙 Speak now'}
@@ -204,31 +220,49 @@ export default function Practice({ intent, onReviewChange }) {
 
               {error && <p className="banner" role="alert">{error}</p>}
 
-              <div className="field">
-                <label htmlFor="answer">{exercise.mode === 'missing-word' ? 'Missing word' : 'Your sentence'}</label>
-                <textarea
-                  id="answer"
-                  ref={answerField}
-                  className="answer"
-                  rows={exercise.mode === 'missing-word' ? 1 : 3}
-                  autoComplete="off"
-                  autoCorrect="off"
-                  spellCheck="false"
-                  value={input}
-                  disabled={status === 'done'}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={onKeyDown}
-                  placeholder={exercise.mode === 'missing-word' ? 'Type the missing word...' : 'Type your sentence...'}
-                />
-                <span className="muted">
-                  {exercise.mode === 'missing-word' ? 'One word' : exercise.wordCount + ' words'} · <span className="kbd">Enter</span> to check, <span className="kbd">Shift</span> + <span className="kbd">Enter</span> for a new line
-                </span>
-              </div>
+              {isChoice ? (
+                <div className="options">
+                  {exercise.options.map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      className={'option' + (input === option ? ' picked' : '')}
+                      disabled={status !== 'ready'}
+                      onClick={() => choose(option)}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <>
+                  <div className="field">
+                    <label htmlFor="answer">{exercise.wordCount === 1 ? 'Missing word' : 'Your sentence'}</label>
+                    <textarea
+                      id="answer"
+                      ref={answerField}
+                      className="answer"
+                      rows={exercise.wordCount === 1 ? 1 : 3}
+                      autoComplete="off"
+                      autoCorrect="off"
+                      spellCheck="false"
+                      value={input}
+                      disabled={status === 'done'}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={onKeyDown}
+                      placeholder={exercise.wordCount === 1 ? 'Type the missing word...' : 'Type your sentence...'}
+                    />
+                    <span className="muted">
+                      {exercise.wordCount === 1 ? 'One word' : exercise.wordCount + ' words'} · <span className="kbd">Enter</span> to check, <span className="kbd">Shift</span> + <span className="kbd">Enter</span> for a new line
+                    </span>
+                  </div>
 
-              {status !== 'done' && (
-                <button className="btn block lg" type="submit" disabled={status === 'checking' || !input.trim()}>
-                  {status === 'checking' ? 'Checking your answer...' : 'Check answer'}
-                </button>
+                  {status !== 'done' && (
+                    <button className="btn block lg" type="submit" disabled={status === 'checking' || !input.trim()}>
+                      {status === 'checking' ? 'Checking your answer...' : 'Check answer'}
+                    </button>
+                  )}
+                </>
               )}
             </form>
           )}
