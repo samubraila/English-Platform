@@ -5,13 +5,17 @@ CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY,
   email TEXT NOT NULL UNIQUE,
   password_hash TEXT NOT NULL,
+  daily_goal INTEGER NOT NULL DEFAULT 20,
+  level TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
 CREATE TABLE IF NOT EXISTS categories (
   id INTEGER PRIMARY KEY,
   slug TEXT NOT NULL UNIQUE,
-  name TEXT NOT NULL
+  name TEXT NOT NULL,
+  icon TEXT NOT NULL DEFAULT '•',
+  sort INTEGER NOT NULL DEFAULT 100
 );
 
 CREATE TABLE IF NOT EXISTS exercises (
@@ -20,14 +24,15 @@ CREATE TABLE IF NOT EXISTS exercises (
   level TEXT NOT NULL,
   text TEXT NOT NULL UNIQUE,
   corrupted TEXT,
-  hint TEXT
+  alternatives TEXT,
+  owner_id INTEGER REFERENCES users(id) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_exercises_category ON exercises(category_id, level);
 
 CREATE TABLE IF NOT EXISTS answers (
   id INTEGER PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  exercise_id INTEGER NOT NULL REFERENCES exercises(id),
+  exercise_id INTEGER NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
   mode TEXT NOT NULL,
   input TEXT NOT NULL,
   score INTEGER NOT NULL,
@@ -66,3 +71,13 @@ CREATE TABLE IF NOT EXISTS progress (
   seconds INTEGER NOT NULL DEFAULT 0,
   PRIMARY KEY (user_id, day)
 );
+
+CREATE TABLE IF NOT EXISTS reviews (
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  exercise_id INTEGER NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
+  due TEXT NOT NULL,
+  step INTEGER NOT NULL DEFAULT 0,
+  lapses INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (user_id, exercise_id)
+);
+CREATE INDEX IF NOT EXISTS idx_reviews_due ON reviews(user_id, due);

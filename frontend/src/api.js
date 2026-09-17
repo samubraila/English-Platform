@@ -32,6 +32,12 @@ export const api = {
   next: (params) => request('/exercises/next?' + new URLSearchParams(Object.entries(params).filter(([, v]) => v)).toString()),
   answer: (id, body) => request('/exercises/' + id + '/answer', { method: 'POST', body }),
   progress: () => request('/progress'),
+  settings: () => request('/settings'),
+  saveSettings: (body) => request('/settings', { method: 'PUT', body }),
+  myExercises: () => request('/exercises/mine'),
+  createExercise: (body) => request('/exercises', { method: 'POST', body }),
+  deleteExercise: (id) => request('/exercises/' + id, { method: 'DELETE' }),
+  exportUrl: base + '/export',
   statistics: () => request('/statistics'),
   weakWords: () => request('/weak-words'),
   mistakes: () => request('/mistakes')

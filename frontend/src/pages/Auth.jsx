@@ -24,14 +24,22 @@ export default function Auth({ onAuthenticated }) {
 
   return (
     <div className="auth">
-      <form className="card stack" onSubmit={submit}>
+      <form className="card stack pad-lg pop" onSubmit={submit}>
         <div className="brand">
-          <span aria-hidden="true">W</span>
+          <span className="mark" aria-hidden="true">W</span>
           WORDTRACE
         </div>
+
         <div className="stack tight">
           <h1>{mode === 'login' ? 'Sign in' : 'Create your account'}</h1>
-          <p className="muted">Train English sentences, grammar and IT vocabulary.</p>
+          <p className="muted">English sentence training for work, IT and everyday situations.</p>
+        </div>
+
+        <p className="puzzle" style={{ fontSize: '1.15rem', padding: '16px' }}>I N T C T S</p>
+        <div className="auth-points">
+          <span>Rebuild sentences from their first letters</span>
+          <span>Get every mistake explained, not just marked</span>
+          <span>Wrong sentences come back until they stick</span>
         </div>
 
         {error && <p className="banner" role="alert">{error}</p>}
@@ -55,7 +63,7 @@ export default function Auth({ onAuthenticated }) {
           {mode === 'register' && <span className="muted">At least 8 characters.</span>}
         </div>
 
-        <button className="btn block" type="submit" disabled={busy}>
+        <button className="btn block lg" type="submit" disabled={busy}>
           {busy ? 'Please wait...' : mode === 'login' ? 'Sign in' : 'Create account'}
         </button>
 

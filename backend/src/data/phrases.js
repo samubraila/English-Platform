@@ -1,0 +1,96 @@
+export default [
+  ['phrasal', 'A2', 'Please turn on the computer and log in.', null],
+  ['phrasal', 'A2', 'Do not forget to turn off the lights.', null],
+  ['phrasal', 'A2', 'I will call you back in ten minutes.', null],
+  ['phrasal', 'A2', 'Could you write down the ticket number?', null],
+  ['phrasal', 'B1', 'We ran out of disk space last night.', null],
+  ['phrasal', 'B1', 'The meeting was called off because the customer cancelled.', null],
+  ['phrasal', 'B1', 'I will look into the problem this afternoon.', null],
+  ['phrasal', 'B1', 'Please fill in the form and send it back to us.', null],
+  ['phrasal', 'B1', 'The server went down at about four o clock.', null],
+  ['phrasal', 'B1', 'We had to give up after three hours of troubleshooting.', null],
+  ['phrasal', 'B1', 'Could you check up on the backup job tomorrow?', null],
+  ['phrasal', 'B1', 'He picked up the phone after the third ring.', null],
+  ['phrasal', 'B2', 'The new colleague picked the system up very quickly.', null],
+  ['phrasal', 'B2', 'We are looking forward to working with you.', 'We are looking forward to work with you.'],
+  ['phrasal', 'B2', 'The team came up with a much simpler solution.', null],
+  ['phrasal', 'B2', 'I need to catch up on my emails after the holiday.', null],
+  ['phrasal', 'B2', 'Please carry on, I am only listening.', null],
+  ['phrasal', 'B2', 'The contract runs out at the end of March.', null],
+  ['phrasal', 'B2', 'We should back up the data before we carry out the update.', null],
+  ['phrasal', 'B2', 'The issue turned out to be a simple configuration mistake.', null],
+  ['phrasal', 'B2', 'They put off the migration until the summer.', null],
+  ['phrasal', 'B2', 'I came across an old script that still works.', null],
+  ['phrasal', 'C1', 'It is hard to keep up with all the new tools.', null],
+  ['phrasal', 'C1', 'We had to sort out the licences before the audit.', null],
+  ['phrasal', 'C1', 'The project was held up by a missing signature.', null],
+  ['phrasal', 'C1', 'Let us go over the plan one more time.', null],
+
+  ['smalltalk', 'A1', 'Good morning, how are you today?', null],
+  ['smalltalk', 'A1', 'Nice to meet you. My name is Samuel.', null],
+  ['smalltalk', 'A1', 'Have a nice weekend and see you on Monday.', null],
+  ['smalltalk', 'A2', 'How was your weekend?', null],
+  ['smalltalk', 'A2', 'The weather is much better than yesterday.', null],
+  ['smalltalk', 'A2', 'Would you like a coffee or a tea?', null],
+  ['smalltalk', 'A2', 'I am new here, I started two weeks ago.', null],
+  ['smalltalk', 'B1', 'How long have you been working in this company?', 'How long are you working in this company?'],
+  ['smalltalk', 'B1', 'What exactly do you do in your job?', null],
+  ['smalltalk', 'B1', 'I am doing an apprenticeship as an IT specialist.', null],
+  ['smalltalk', 'B1', 'In my free time I like building small projects.', null],
+  ['smalltalk', 'B1', 'It was really nice talking to you.', null],
+  ['smalltalk', 'B2', 'I have been interested in computers since I was a child.', null],
+  ['smalltalk', 'B2', 'We should stay in touch and exchange experiences.', null],
+  ['smalltalk', 'B2', 'Compared to last year, we have a lot more to do.', null],
+  ['smalltalk', 'B2', 'Do you mind if I ask what you are working on?', null],
+  ['smalltalk', 'C1', 'I would say the most interesting part of my job is troubleshooting.', null],
+  ['smalltalk', 'C1', 'If you ever need a hand with the servers, just let me know.', null],
+
+  ['it', 'A2', 'The password must contain at least twelve characters.', null],
+  ['it', 'B1', 'The customer cannot print because the driver is missing.', null],
+  ['it', 'B1', 'We documented the solution in the knowledge base.', null],
+  ['it', 'B2', 'The remote session was closed before I could finish.', null],
+  ['it', 'B2', 'Please describe the steps that lead to the error.', null],
+  ['it', 'C1', 'What looks like a network problem is often a DNS problem.', null],
+
+  ['docker', 'B1', 'The container uses the image from the local registry.', null],
+  ['docker', 'B2', 'The logs show that the container stopped with exit code one.', null],
+  ['docker', 'C1', 'Each service should do one thing and do it well.', null],
+
+  ['linux', 'B1', 'The disk was full, so the service could not write its log.', null],
+  ['linux', 'B2', 'I changed the owner of the directory to the service user.', null],
+  ['linux', 'C1', 'Everything in Linux is a file, even a device.', null],
+
+  ['servers', 'B1', 'The new server will be delivered next week.', null],
+  ['servers', 'B2', 'We tested the restore to make sure the backup really works.', null],
+
+  ['networking', 'B1', 'The wifi password was changed this morning.', null],
+  ['networking', 'B2', 'Two devices in the network have the same IP address.', null],
+
+  ['security', 'B1', 'Please report every suspicious email to the IT department.', null],
+  ['security', 'B2', 'The laptop is encrypted, so the data is safe if it is lost.', null],
+
+  ['monitoring', 'B1', 'The check runs every five minutes.', null],
+  ['monitoring', 'B2', 'An alert without a clear action is only noise.', null],
+
+  ['programming', 'B1', 'I added a test before I fixed the bug.', null],
+  ['programming', 'B2', 'The build fails on the server but works on my machine.', null],
+
+  ['support', 'B1', 'Your ticket has been updated with the latest information.', null],
+  ['support', 'B2', 'We will call you back as soon as the part has arrived.', null],
+
+  ['business', 'B1', 'Please send me the invoice by the end of the month.', null],
+  ['business', 'B2', 'The customer asked for a discount on the yearly licence.', null],
+
+  ['daily', 'A2', 'I take the train to work every morning.', null],
+  ['daily', 'B1', 'I have already finished the report you asked for.', null],
+
+  ['general', 'B1', 'It took me two hours to find the mistake.', null],
+  ['general', 'B2', 'The main reason for the delay was a missing part.', null],
+
+  ['technology', 'B1', 'The screen stays black although the computer is running.', null],
+  ['technology', 'B2', 'Modern phones are basically small computers.', null],
+
+  ['travel', 'B1', 'I will be back in the office on Monday morning.', null],
+  ['meetings', 'B1', 'Let us take five minutes and then continue.', null],
+  ['email', 'B1', 'I am forwarding you the message from the customer.', null]
+];
